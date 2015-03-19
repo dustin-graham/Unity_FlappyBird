@@ -1,0 +1,215 @@
+#Unity 3D Live Demo Guide
+## Set up the Bird
+- empty parent
+- BoxCollider
+- Rigidbody
+- Create Bird script, apply Update and FixedUpdate
+```
+  void Update() {
+  	touched = Input.anyKeyDown;
+  }
+
+  void FixedUpdate() {
+  	if (touched) {
+  		//apply upForce
+  		//...zero out the birds current y velocity before...
+  		GetComponent<Rigidbody>().velocity = new Vector3(0,0,0);
+  		GetComponent<Rigidbody>().AddForce(Vector3.up * upForce);
+  	}
+  }
+```
+- Demo the code thus far
+- Add directional light
+
+## Animate the Bird
+- Create Fall animation clip: single frame, angled down
+- Create Flap animation clip: single frame, angled up
+- Configure animator: Fall default state, create verticalVelocity float property, transitions with no exit time,change on verticalVelocity property
+- Add code to trigger animation change:
+```
+	private Animator _animator;
+
+  void Start() {
+		_animator = GetComponent<Animator> ();
+	}
+
+  void FixedUpdate() {
+  	if (touched) {
+  		//apply upForce
+  		//...zero out the birds current y velocity before...
+  		GetComponent<Rigidbody>().velocity = new Vector3(0,0,0);
+  		GetComponent<Rigidbody>().AddForce(Vector3.up * upForce);
+  	}
+    //triggers animation change
+  	_animator.SetFloat("verticalVelocity",GetComponent<Rigidbody>().velocity.y);
+  }
+```
+
+## Setup The Scene
+- Add top and bottom boundary cubes. Assign to boundary layer
+- Add code to Bird that detects collisions with boundary
+```
+  //callback for interested observers when collision occurs
+  public System.Action OnBirdCollision;
+  public LayerMask hazardLayerMask;
+
+  void OnCollisionEnter(Collision collision) {
+		Collider other = collision.collider;
+		if ((1<<other.gameObject.layer & hazardLayerMask.value) == 1<<other.gameObject.layer && OnBirdCollision != null) {
+      Debug.Log("on collision!");
+      OnBirdCollision();
+		}
+	}
+```
+- test the collision code
+
+## Setup GameManager
+- Explain what we want to do with GameManager: control when the game starts, when it ends, keep track of score, and restart the game
+- Add empty GameObject and name it GameManager, add the GameManager script
+- Review the GameManager code
+- Assign Bird outlet
+
+## Create Game GUI
+- Create the score UI: 2 labels aligned to the top, yellow color
+- Explain about anchoring and alignment
+- Create GameOver group
+- Add high score label and value to GameOver group
+- Add Retry button to GameOver group
+- Add the GameOver script to GameOver group
+- **Assign score outlet on GameManager**
+- **Assign GameOver outlet on GameManager**
+- Add retry action to GameManager retry method
+- Change Canvas layer to GUI
+- Add GUI Camera, Clear flags gone, Culling to GUI only, orthographic
+- Change GUI mode to camera, assign GUICam, move out of the way
+
+## Create Pipe Set Prefab
+- Explain prefabs
+- Setup Bottom pipe first: main (parent) collider on trunk, secondary, child collider as child for the "cap", Set layer to Pipe
+- Duplicate, parent, flip top pipe
+- Add BoxCollider trigger in the middle, offset toward the back, Set layer to "PipeGate"
+- Parent Pipe set, add Rigidbody to parent: Kinematic
+- Demonstrate prefab instantiation, update capability
+
+## Create The Pipe Manager
+- Create Empty GameObject to host the PipeManager
+- Add the PipeManager script
+- Add an empty child GameObject, name it PipeCarousel
+- Add an empty child GameObject to PipeCarousel, call it MountainRoot
+- Assign PipeCarousel and MountainRoot GameObjects to PipeManager outlets
+- Assign Pipe Set prefab
+- Assign mountain prefab (already created)
+- Briefly review PipeManager script
+- **Show PipeManagerEditor script to highlight custom Inspector scripts**
+
+- Demo game so far, demonstrate Pipes not causing death
+- **Set Bird hazardLayerMask to include Pipe**
+- Demo game to show death on pipes
+
+## Configure scoring
+- Add code to Bird to listen for game start/stop events and find the layer for the scoring trigger
+```
+  public System.Action OnBirdScore;
+  private int pipeGateLayer;
+
+  void OnEnable() {
+  	GameManager.OnGameStart += OnGameStart;
+  	GameManager.OnGameStop += OnGameStop;
+  }
+
+  void OnDisable() {
+  	GameManager.OnGameStart -= OnGameStart;
+  	GameManager.OnGameStop -= OnGameStop;
+  }
+
+  private void OnGameStart() {
+  	GetComponent<Rigidbody>().isKinematic = false;
+  }
+
+  private void OnGameStop() {
+  	GetComponent<Rigidbody>().isKinematic = true;
+  }
+
+  void Start() {
+  	pipeGateLayer = LayerMask.NameToLayer("PipeGate");
+  	_animator = GetComponent<Animator> ();
+  }
+
+  void OnTriggerEnter(Collider other) {
+    if (other.gameObject.layer == pipeGateLayer && OnBirdScore != null) {
+      OnBirdScore();
+    }
+  }
+```
+
+For reference, here is the full Bird.cs file:
+```
+using UnityEngine;
+using System.Collections;
+
+[RequireComponent(typeof(Rigidbody))]
+public class Bird : MonoBehaviour {
+
+	public System.Action OnBirdCollision;
+	public System.Action OnBirdScore;
+
+	public float upForce = 100f;
+
+	public LayerMask hazardLayerMask;
+	private int pipeGateLayer;
+
+	private bool touched = false;
+
+	private Animator _animator;
+
+	void OnEnable() {
+		GameManager.OnGameStart += OnGameStart;
+		GameManager.OnGameStop += OnGameStop;
+	}
+
+	void OnDisable() {
+		GameManager.OnGameStart -= OnGameStart;
+		GameManager.OnGameStop -= OnGameStop;
+	}
+
+	private void OnGameStart() {
+		GetComponent<Rigidbody>().isKinematic = false;
+	}
+
+	private void OnGameStop() {
+		GetComponent<Rigidbody>().isKinematic = true;
+	}
+	void Start() {
+		pipeGateLayer = LayerMask.NameToLayer("PipeGate");
+		_animator = GetComponent<Animator> ();
+	}
+
+	void Update() {
+		touched = Input.anyKeyDown;
+	}
+
+	void FixedUpdate() {
+		if (touched) {
+			//apply upForce
+			//...zero out the birds current y velocity before...
+			GetComponent<Rigidbody>().velocity = new Vector3(0,0,0);
+			GetComponent<Rigidbody>().AddForce(Vector3.up * upForce);
+		}
+		_animator.SetFloat("verticalVelocity",GetComponent<Rigidbody>().velocity.y);
+	}
+
+	void OnCollisionEnter(Collision collision) {
+		Collider other = collision.collider;
+		if ((1<<other.gameObject.layer & hazardLayerMask.value) == 1<<other.gameObject.layer && OnBirdCollision != null) {
+			Debug.Log("on collision!");
+			OnBirdCollision();
+		}
+	}
+
+	void OnTriggerEnter(Collider other) {
+		if (other.gameObject.layer == pipeGateLayer && OnBirdScore != null) {
+			OnBirdScore();
+		}
+	}
+}
+```

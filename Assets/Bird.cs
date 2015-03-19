@@ -33,7 +33,6 @@ public class Bird : MonoBehaviour {
 	private void OnGameStop() {
 		GetComponent<Rigidbody>().isKinematic = true;
 	}
-
 	void Start() {
 		pipeGateLayer = LayerMask.NameToLayer("PipeGate");
 		_animator = GetComponent<Animator> ();
@@ -41,9 +40,6 @@ public class Bird : MonoBehaviour {
 
 	void Update() {
 		touched = Input.anyKeyDown;
-		if (touched) {
-			_animator.SetFloat("verticalVelocity",1f);
-		}
 	}
 
 	void FixedUpdate() {
@@ -58,10 +54,8 @@ public class Bird : MonoBehaviour {
 
 	void OnCollisionEnter(Collision collision) {
 		Collider other = collision.collider;
-		if (other.gameObject.layer == hazardLayerMask.value) {
-			Debug.Log("hit");
-		}
 		if ((1<<other.gameObject.layer & hazardLayerMask.value) == 1<<other.gameObject.layer && OnBirdCollision != null) {
+			Debug.Log("on collision!");
 			OnBirdCollision();
 		}
 	}

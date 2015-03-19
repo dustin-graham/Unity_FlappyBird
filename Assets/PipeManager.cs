@@ -97,6 +97,7 @@ public class PipeManager : MonoBehaviour {
 		pipeTrans.localPosition = new Vector3(x,y,z);
 	}
 
+	//responsible for placing the mountains at just the right position so they rest on the horizon
 	public void SetMountains() {
 		float mountainDistanceFromCamera = mountainDistance - Camera.main.transform.position.z;
 		_mountainStart = Camera.main.ScreenToWorldPoint(new Vector3(0,0,mountainDistanceFromCamera));

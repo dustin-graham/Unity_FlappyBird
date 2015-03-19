@@ -21,7 +21,4 @@ public class GameOverGUI : MonoBehaviour {
 		scoreText.text = currentScore.ToString();
 		bestScoreText.text = highScore.ToString();
 	}
-
-	void OnDisable() {
-	}
 }
