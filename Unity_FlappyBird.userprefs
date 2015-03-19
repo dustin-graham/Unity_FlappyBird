@@ -1,0 +1,16 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Bird.cs">
+    <Files>
+      <File FileName="Assets/Bird.cs" Line="53" Column="1" />
+      <File FileName="Assets/GameManager.cs" Line="40" Column="4" />
+      <File FileName="Assets/GameOverGUI.cs" Line="1" Column="1" />
+      <File FileName="Assets/PipeManager.cs" Line="1" Column="1" />
+      <File FileName="../ScoutGameDesign 5/Assets/Example Games/Flappy Bird Style/Scripts/BirdScript.cs" Line="28" Column="23" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

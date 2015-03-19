@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class GameOverGUI : MonoBehaviour {
 
-	public System.Action OnRetry;
-	public tk2dTextMesh scoreText;
-	public tk2dTextMesh bestScoreText;
-	public tk2dUIItem retryButton;
+	public Text scoreText;
+	public Text bestScoreText;
+	public Button retryButton;
 
 	private int bestScore = 0;
 	private GameManager _gameManager;
@@ -16,7 +16,6 @@ public class GameOverGUI : MonoBehaviour {
 	}
 
 	void OnEnable() {
-		retryButton.OnClick += OnRetryClicked;
 		int currentScore = _gameManager.Score;
 		int highScore = _gameManager.HighScore;
 		scoreText.text = currentScore.ToString();
@@ -24,10 +23,5 @@ public class GameOverGUI : MonoBehaviour {
 	}
 
 	void OnDisable() {
-		retryButton.OnClick -= OnRetryClicked;
-	}
-
-	private void OnRetryClicked() {
-		if (OnRetry != null) OnRetry();
 	}
 }

@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class GameManager : MonoBehaviour {
 	const string highscore = "high_score";
 
 	public Bird bird;
-	public tk2dTextMesh scoreText;
+	public Text scoreText;
 	public GameOverGUI gameOverGUI;
 
 	public static System.Action OnGameStart;
@@ -38,13 +39,11 @@ public class GameManager : MonoBehaviour {
 	void OnEnable() {
 		bird.OnBirdCollision += OnBirdCollisionDetected;
 		bird.OnBirdScore += OnBirdScoreDetected;
-		gameOverGUI.OnRetry += OnRetyRequested;
 	}
 
 	void OnDisable() {
 		bird.OnBirdCollision -= OnBirdCollisionDetected;
 		bird.OnBirdScore -= OnBirdScoreDetected;
-		gameOverGUI.OnRetry -= OnRetyRequested;
 	}
 
 	void Start() {
@@ -65,7 +64,7 @@ public class GameManager : MonoBehaviour {
 		scoreText.text = _scoreCount.ToString();
 	}
 
-	void OnRetyRequested() {
+	public void OnRetyRequested() {
 		Application.LoadLevel(0);
 	}
 }

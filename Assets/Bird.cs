@@ -12,6 +12,10 @@ public class Bird : MonoBehaviour {
 	public LayerMask hazardLayerMask;
 	private int pipeGateLayer;
 
+	private bool touched = false;
+
+	private Animator _animator;
+
 	void OnEnable() {
 		GameManager.OnGameStart += OnGameStart;
 		GameManager.OnGameStop += OnGameStop;
@@ -23,27 +27,40 @@ public class Bird : MonoBehaviour {
 	}
 
 	private void OnGameStart() {
-		rigidbody.isKinematic = false;
+		GetComponent<Rigidbody>().isKinematic = false;
 	}
 
 	private void OnGameStop() {
-		rigidbody.isKinematic = true;
+		GetComponent<Rigidbody>().isKinematic = true;
 	}
 
 	void Start() {
 		pipeGateLayer = LayerMask.NameToLayer("PipeGate");
+		_animator = GetComponent<Animator> ();
 	}
 
 	void Update() {
-		bool touched = Input.GetMouseButtonDown(0) || (Input.touches.Length > 0 && Input.touches[0].phase == TouchPhase.Began);
+		touched = Input.anyKeyDown;
+		if (touched) {
+			_animator.SetFloat("verticalVelocity",1f);
+		}
+	}
+
+	void FixedUpdate() {
 		if (touched) {
 			//apply upForce
-			rigidbody.AddForce(Vector3.up * upForce);
+			//...zero out the birds current y velocity before...
+			GetComponent<Rigidbody>().velocity = new Vector3(0,0,0);
+			GetComponent<Rigidbody>().AddForce(Vector3.up * upForce);
 		}
+		_animator.SetFloat("verticalVelocity",GetComponent<Rigidbody>().velocity.y);
 	}
 
 	void OnCollisionEnter(Collision collision) {
 		Collider other = collision.collider;
+		if (other.gameObject.layer == hazardLayerMask.value) {
+			Debug.Log("hit");
+		}
 		if ((1<<other.gameObject.layer & hazardLayerMask.value) == 1<<other.gameObject.layer && OnBirdCollision != null) {
 			OnBirdCollision();
 		}
